@@ -103,38 +103,58 @@ const MoodboardList = () => {
               transition={{ delay: index * 0.1 }}
               whileHover={{ y: -5 }}
             >
-              <Card className="overflow-hidden group cursor-pointer">
+<Card className="overflow-hidden group cursor-pointer transform transition-all duration-300 hover:shadow-xl">
                 <div 
-                  className="aspect-[4/3] relative bg-gradient-to-br from-surface to-white p-4"
+                  className="aspect-[4/3] relative bg-gradient-to-br from-pink-50 via-purple-50 to-blue-50 p-4"
                   onClick={() => navigate(`/moodboard/${moodboard.Id}`)}
                 >
                   {/* Preview of items */}
                   {moodboard.items && moodboard.items.length > 0 ? (
                     <div className="relative w-full h-full">
-                      {moodboard.items.slice(0, 4).map((item, idx) => (
+                      {/* Main feature image */}
+                      {moodboard.items[0] && (
+                        <img
+                          src={moodboard.items[0].imageUrl}
+                          alt=""
+                          className="absolute top-3 left-3 w-20 h-20 object-cover rounded-xl shadow-lg border-2 border-white z-10"
+                        />
+                      )}
+                      
+                      {/* Secondary overlapping images */}
+                      {moodboard.items.slice(1, 4).map((item, idx) => (
                         <img
                           key={idx}
                           src={item.imageUrl}
                           alt=""
-                          className={`absolute w-16 h-16 object-cover rounded-lg shadow-md ${
-                            idx === 0 ? "top-2 left-2" :
-                            idx === 1 ? "top-2 right-2" :
-                            idx === 2 ? "bottom-2 left-2" :
-                            "bottom-2 right-2"
+                          className={`absolute w-14 h-14 object-cover rounded-lg shadow-md border border-white/50 ${
+                            idx === 0 ? "top-6 right-4 rotate-6" :
+                            idx === 1 ? "bottom-4 left-6 -rotate-3" :
+                            "bottom-3 right-6 rotate-12"
                           }`}
+                          style={{ zIndex: 9 - idx }}
                         />
                       ))}
                       
-                      {/* Decorations preview */}
+                      {/* Additional items indicator */}
+                      {moodboard.items.length > 4 && (
+                        <div className="absolute bottom-2 right-2 w-8 h-8 bg-gradient-to-br from-primary to-accent rounded-full flex items-center justify-center text-xs font-bold text-white shadow-lg">
+                          +{moodboard.items.length - 3}
+                        </div>
+                      )}
+                      
+                      {/* Floating decorations */}
                       {moodboard.decorations?.slice(0, 3).map((decoration, idx) => (
                         <span
                           key={idx}
-                          className={`absolute text-lg ${
-                            idx === 0 ? "top-1/3 left-1/3" :
-                            idx === 1 ? "top-2/3 right-1/3" :
-                            "bottom-1/3 left-2/3"
+                          className={`absolute text-xl drop-shadow-sm ${
+                            idx === 0 ? "top-1/4 left-1/2 -translate-x-1/2" :
+                            idx === 1 ? "top-3/4 right-1/4" :
+                            "bottom-1/4 left-1/4"
                           }`}
-                          style={{ transform: `rotate(${decoration.rotation || 0}deg)` }}
+                          style={{ 
+                            transform: `rotate(${decoration.rotation || 0}deg) ${idx === 0 ? 'translateX(-50%)' : ''}`,
+                            zIndex: 15
+                          }}
                         >
                           {decoration.decorationType === "heart" && "💖"}
                           {decoration.decorationType === "sparkle" && "✨"}

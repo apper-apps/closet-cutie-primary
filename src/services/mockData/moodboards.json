@@ -7,11 +7,11 @@
         "id": 1001,
         "type": "outfit",
         "outfitId": 1,
-        "x": 50,
+"x": 50,
         "y": 80,
         "width": 120,
         "height": 120,
-        "imageUrl": "https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?w=400&h=600&fit=crop&crop=center"
+        "imageUrl": "https://images.unsplash.com/photo-1544957992-20349e0dccc1?w=400&h=600&fit=crop&crop=center"
       },
       {
         "id": 1002,
@@ -21,7 +21,27 @@
         "y": 120,
         "width": 100,
         "height": 100,
-        "imageUrl": "https://images.unsplash.com/photo-1469334031218-e382a71b716b?w=400&h=600&fit=crop&crop=center"
+        "imageUrl": "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=400&h=600&fit=crop&crop=center"
+      },
+      {
+        "id": 1006,
+        "type": "outfit",
+        "outfitId": 4,
+        "x": 320,
+        "y": 60,
+        "width": 90,
+        "height": 90,
+        "imageUrl": "https://images.unsplash.com/photo-1583743814966-8936f37f82e4?w=400&h=600&fit=crop&crop=center"
+      },
+      {
+        "id": 1007,
+        "type": "outfit",
+        "outfitId": 5,
+        "x": 150,
+        "y": 240,
+        "width": 80,
+        "height": 80,
+        "imageUrl": "https://images.unsplash.com/photo-1509631179647-0177331693ae?w=400&h=600&fit=crop&crop=center"
       }
     ],
     "decorations": [
@@ -61,11 +81,31 @@
         "id": 1003,
         "type": "outfit",
         "outfitId": 1,
-        "x": 80,
+"x": 80,
         "y": 100,
         "width": 140,
         "height": 140,
-        "imageUrl": "https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?w=400&h=600&fit=crop&crop=center"
+        "imageUrl": "https://images.unsplash.com/photo-1571513722275-4b3c078e4c86?w=400&h=600&fit=crop&crop=center"
+      },
+      {
+        "id": 1008,
+        "type": "outfit",
+        "outfitId": 7,
+        "x": 250,
+        "y": 140,
+        "width": 100,
+        "height": 100,
+        "imageUrl": "https://images.unsplash.com/photo-1581044777550-4cfa60707c03?w=400&h=600&fit=crop&crop=center"
+      },
+      {
+        "id": 1009,
+        "type": "outfit",
+        "outfitId": 8,
+        "x": 60,
+        "y": 260,
+        "width": 85,
+        "height": 85,
+        "imageUrl": "https://images.unsplash.com/photo-1487222477894-8943e31ef7b2?w=400&h=600&fit=crop&crop=center"
       }
     ],
     "decorations": [
@@ -105,11 +145,11 @@
         "id": 1004,
         "type": "outfit",
         "outfitId": 2,
-        "x": 70,
+"x": 70,
         "y": 90,
         "width": 110,
         "height": 110,
-        "imageUrl": "https://images.unsplash.com/photo-1551698618-1dfe5d97d256?w=400&h=600&fit=crop&crop=center"
+        "imageUrl": "https://images.unsplash.com/photo-1469334031218-e382a71b716b?w=400&h=600&fit=crop&crop=center"
       },
       {
         "id": 1005,
@@ -119,7 +159,37 @@
         "y": 140,
         "width": 80,
         "height": 80,
-        "imageUrl": "https://images.unsplash.com/photo-1487222477894-8943e31ef7b2?w=400&h=600&fit=crop&crop=center"
+        "imageUrl": "https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?w=400&h=600&fit=crop&crop=center"
+      },
+      {
+        "id": 1010,
+        "type": "outfit",
+        "outfitId": 9,
+        "x": 320,
+        "y": 80,
+        "width": 95,
+        "height": 95,
+        "imageUrl": "https://images.unsplash.com/photo-1551698618-1dfe5d97d256?w=400&h=600&fit=crop&crop=center"
+      },
+      {
+        "id": 1011,
+        "type": "outfit",
+        "outfitId": 10,
+        "x": 150,
+        "y": 220,
+        "width": 75,
+        "height": 75,
+        "imageUrl": "https://images.unsplash.com/photo-1544957992-20349e0dccc1?w=400&h=600&fit=crop&crop=center"
+      },
+      {
+        "id": 1012,
+        "type": "outfit",
+        "outfitId": 11,
+        "x": 280,
+        "y": 200,
+        "width": 85,
+        "height": 85,
+        "imageUrl": "https://images.unsplash.com/photo-1571513722275-4b3c078e4c86?w=400&h=600&fit=crop&crop=center"
       }
     ],
     "decorations": [

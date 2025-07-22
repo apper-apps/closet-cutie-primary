@@ -85,12 +85,12 @@ function Error({ error, onRetry, type = 'general' }) {
           onClick={onRetry}
           className="px-6 py-3 bg-gradient-to-r from-primary to-accent text-white rounded-full font-medium hover:shadow-lg transition-all duration-200 flex items-center gap-2"
         >
-          <ApperIcon name="RefreshCw" size={16} />
-          Try Again
-        </motion.button>
-      )}
-    </div>
-  );
+<ApperIcon name="RefreshCw" size={16} />
+        Try Again
+      </motion.button>
+    )}
+  </motion.div>
+);
 }
 
 export default Error;

@@ -31,9 +31,9 @@ function Error({ error, onRetry, type = 'general' }) {
     return 'An unexpected error occurred';
   };
   
-  const errorMessage = getErrorMessage(error);
+const errorMessage = getErrorMessage(error);
   
-return (
+  return (
     <div className="flex flex-col items-center justify-center p-8 text-center">
       <motion.div
         initial={{ scale: 0.8, opacity: 0 }}
@@ -65,8 +65,11 @@ return (
         >
           <ApperIcon name="RefreshCw" size={16} />
           Try Again
+Try Again
         </motion.button>
       )}
-    </motion.div>
+    </div>
   );
 }
+
+export default Error;

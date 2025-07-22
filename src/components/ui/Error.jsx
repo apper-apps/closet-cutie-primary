@@ -2,53 +2,75 @@ import { motion } from "framer-motion";
 import React from "react";
 import ApperIcon from "@/components/ApperIcon";
 
-function Error({ error, onRetry, type = 'general' }) {
-  // Enhanced error message extraction with proper serialization
-  const getErrorMessage = (err) => {
-    if (!err) return 'Something went wrong';
-    
-    // If it's already a string, use it
-    if (typeof err === 'string') return err;
-    
-    // Try to extract message property
-    if (err.message && typeof err.message === 'string') return err.message;
-    
-    // Try to extract error description
-    if (err.description && typeof err.description === 'string') return err.description;
-    
-    // Try toString method, but avoid [object Object]
-    if (err.toString && typeof err.toString === 'function') {
-      const stringified = err.toString();
-      if (stringified !== '[object Object]') return stringified;
+// Centralized error message extraction utility
+export const getErrorMessage = (err) => {
+  if (!err) return 'Something went wrong'
+  
+  // Handle string errors
+  if (typeof err === 'string') return err
+  
+  // Handle error objects with message property
+  if (err.message && typeof err.message === 'string') return err.message
+  
+  // Handle specific error types
+  if (err.code !== undefined) {
+    // GeolocationPositionError or similar
+    switch (err.code) {
+      case 1: return 'Permission denied'
+      case 2: return 'Position unavailable'  
+      case 3: return 'Request timeout'
+      default: return `Error code ${err.code}`
     }
-    
-    // Try to extract any meaningful error info
-    if (err.code) return `Error code: ${err.code}`;
-    if (err.status) return `Error status: ${err.status}`;
-    if (err.statusText) return `Error: ${err.statusText}`;
-    
-    // Last resort - generic message
-    return 'An unexpected error occurred';
-  };
+  }
   
-const errorMessage = getErrorMessage(error);
+  // Handle toString method
+  if (err.toString && typeof err.toString === 'function') {
+    const stringified = err.toString()
+    return stringified !== '[object Object]' ? stringified : 'An error occurred'
+  }
   
+  // Handle plain objects with relevant properties
+  if (typeof err === 'object') {
+    const props = ['error', 'description', 'detail', 'reason']
+    for (const prop of props) {
+      if (err[prop] && typeof err[prop] === 'string') {
+        return err[prop]
+      }
+    }
+  }
+  
+  // Fallback for any other case
+  return 'An unexpected error occurred'
+}
+
+function Error({ error, onRetry, type = 'general' }) {
+  const errorMessage = getErrorMessage(error)
+
+  const getErrorIcon = () => {
+    switch (type) {
+      case 'network':
+        return 'WifiOff'
+      case 'location':
+        return 'MapPin'
+      case 'weather':
+        return 'CloudOff'
+      default:
+        return 'AlertCircle'
+    }
+  }
+
   return (
-    <div className="flex flex-col items-center justify-center p-8 text-center">
-      <motion.div
-        initial={{ scale: 0.8, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        className="mb-4"
-      >
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="flex flex-col items-center justify-center p-8 text-center"
+    >
+<div className="mb-4 p-4 rounded-full bg-error/20">
         <ApperIcon 
-          name="AlertTriangle" 
-          className="w-16 h-16 text-error mx-auto mb-4" 
+          name={getErrorIcon()} 
+          className="w-8 h-8 text-error" 
         />
-      </motion.div>
-      
-      <h3 className="text-lg font-semibold text-gray-800 mb-2">
-        Oops! Something went wrong
-      </h3>
+      </div>
       <p className="text-gray-600 text-sm leading-relaxed">
         {errorMessage}
       </p>
@@ -65,7 +87,6 @@ const errorMessage = getErrorMessage(error);
         >
           <ApperIcon name="RefreshCw" size={16} />
           Try Again
-Try Again
         </motion.button>
       )}
     </div>

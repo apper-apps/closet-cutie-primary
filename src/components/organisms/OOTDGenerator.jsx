@@ -1,18 +1,17 @@
 import React, { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
+import { toast } from "react-toastify";
 import ApperIcon from "@/components/ApperIcon";
 import Empty from "@/components/ui/Empty";
-import Error from "@/components/ui/Error";
+import Error, { getErrorMessage } from "@/components/ui/Error";
 import Loading from "@/components/ui/Loading";
 import Closet from "@/components/pages/Closet";
 import Card from "@/components/atoms/Card";
 import Badge from "@/components/atoms/Badge";
 import Button from "@/components/atoms/Button";
 import * as outfitService from "@/services/api/outfitService";
-import { getAll } from "@/services/api/moodboardService";
-
-const OOTDGenerator = ({ onViewCloset }) => {
-  const [outfits, setOutfits] = useState([]);
+function OOTDGenerator({ onViewCloset }) {
+  const [outfits, setOutfits] = useState([])
   const [currentOutfit, setCurrentOutfit] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -78,49 +77,41 @@ const OOTDGenerator = ({ onViewCloset }) => {
       
       console.error('Weather fetch failed:', serializedError);
       
-      // Extract error message safely - ensure it's always a string
-      const getErrorMessage = (error) => {
-        if (!error) return 'Unknown error occurred';
-        if (typeof error === 'string') return error;
-        if (error.message && typeof error.message === 'string') return error.message;
-        if (error.toString && typeof error.toString === 'function') {
-          const stringified = error.toString();
-          return stringified !== '[object Object]' ? stringified : 'Error object without message';
-        }
-        return 'Unknown error type';
-      };
+      // Use centralized error message extraction
+      const baseErrorMessage = getErrorMessage(err);
+      let userFriendlyMessage = 'Unable to get weather information';
       
-      // Handle specific geolocation errors with proper error extraction
-      let errorMessage = 'Unable to get weather information';
-      
-      // Check if it's a GeolocationPositionError
+      // Handle specific geolocation errors
       if (err && typeof err === 'object' && err.code !== undefined) {
-        // Handle GeolocationPositionError with specific codes
         switch (err.code) {
           case 1: // PERMISSION_DENIED
-            errorMessage = 'Location access denied. Please enable location services to get weather-appropriate outfit suggestions.';
+            userFriendlyMessage = 'Location access denied. Please enable location services to get weather-appropriate outfit suggestions.';
             break;
           case 2: // POSITION_UNAVAILABLE
-            errorMessage = 'Location information is unavailable. Using default weather for outfit suggestions.';
+            userFriendlyMessage = 'Location information is unavailable. Using default weather for outfit suggestions.';
             break;
           case 3: // TIMEOUT
-            errorMessage = 'Location request timed out. Using default weather for outfit suggestions.';
+            userFriendlyMessage = 'Location request timed out. Using default weather for outfit suggestions.';
             break;
           default:
-            errorMessage = 'Location services error. Using default weather for outfit suggestions.';
+            userFriendlyMessage = 'Location services error. Using default weather for outfit suggestions.';
         }
-      } else if (getErrorMessage(err) === 'TIMEOUT') {
-        errorMessage = 'Location request timed out. Using default weather for outfit suggestions.';
-      } else if (getErrorMessage(err).includes('Weather API')) {
-        errorMessage = 'Weather service unavailable. Using default conditions for outfit suggestions.';
+      } else if (baseErrorMessage === 'TIMEOUT') {
+        userFriendlyMessage = 'Location request timed out. Using default weather for outfit suggestions.';
+      } else if (baseErrorMessage.includes('Weather API')) {
+        userFriendlyMessage = 'Weather service unavailable. Using default conditions for outfit suggestions.';
       } else {
-        // Use the safely extracted error message
-        const safeMessage = getErrorMessage(err);
-        errorMessage = `Weather service error: ${safeMessage}. Using default conditions for outfit suggestions.`;
+        userFriendlyMessage = `Weather service error: ${baseErrorMessage}. Using default conditions for outfit suggestions.`;
       }
       
-      // Ensure errorMessage is always a string before setting state
-      setLocationError(typeof errorMessage === 'string' ? errorMessage : 'Weather service temporarily unavailable');
+      // Set error state with guaranteed string message
+      setLocationError(userFriendlyMessage);
+      
+      // Show toast notification for user feedback
+      toast.warning('Weather info unavailable - using default conditions', {
+        position: "top-center",
+        autoClose: 3000,
+      });
       
       // Set fallback weather data
       setWeather({

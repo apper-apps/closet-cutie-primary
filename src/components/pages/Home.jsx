@@ -1,9 +1,13 @@
+import { useState } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import OOTDGenerator from "@/components/organisms/OOTDGenerator";
+import StylePersonaQuiz from "@/components/molecules/StylePersonaQuiz";
+import Button from "@/components/atoms/Button";
 
 const Home = () => {
   const navigate = useNavigate();
+  const [showQuiz, setShowQuiz] = useState(false);
 
   const handleViewCloset = () => {
     navigate("/closet");
@@ -32,7 +36,7 @@ const Home = () => {
           </p>
         </motion.div>
 
-        {/* OOTD Section */}
+{/* OOTD Section */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -41,6 +45,35 @@ const Home = () => {
           <OOTDGenerator onViewCloset={handleViewCloset} />
         </motion.div>
 
+        {/* Style Persona Quiz Section */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4 }}
+          className="mt-12 text-center"
+        >
+          <div className="bg-gradient-to-r from-primary/10 to-accent/10 rounded-3xl p-8 border border-primary/20">
+            <div className="mb-4">
+              <span className="text-4xl">🌟</span>
+            </div>
+            <h2 className="text-2xl md:text-3xl font-display text-gray-800 mb-3">
+              Discover Your Style Persona
+            </h2>
+            <p className="text-gray-600 max-w-xl mx-auto leading-relaxed mb-6">
+              Take our dreamy style quiz to unlock your unique aesthetic and get personalized 
+              moodboard recommendations that match your vibe perfectly! ✨
+            </p>
+            <Button
+              onClick={() => setShowQuiz(true)}
+              variant="primary"
+              size="lg"
+              icon="Sparkles"
+              className="font-display"
+            >
+              Start Style Quiz
+            </Button>
+          </div>
+        </motion.div>
         {/* Floating decorative elements */}
         <motion.div
           animate={{ 
@@ -87,8 +120,13 @@ const Home = () => {
           className="fixed top-1/2 left-4 text-xl opacity-15 pointer-events-none z-0"
         >
           💖
-        </motion.div>
+</motion.div>
       </div>
+
+      <StylePersonaQuiz 
+        isOpen={showQuiz} 
+        onClose={() => setShowQuiz(false)} 
+      />
     </motion.div>
   );
 };

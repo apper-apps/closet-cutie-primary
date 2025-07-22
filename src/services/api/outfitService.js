@@ -128,6 +128,58 @@ export const deletePlanning = async (outfitId, planningId) => {
     throw new Error("Planning not found");
   }
   
-  outfits[outfitIndex].plannedDates.splice(planningIndex, 1);
+outfits[outfitIndex].plannedDates.splice(planningIndex, 1);
   return true;
+};
+
+// Weather-based outfit filtering
+export const getByWeatherCondition = async (condition) => {
+  await delay(200);
+  
+  const weatherAppropriate = outfits.filter(outfit => {
+    const tags = (outfit.tags || []).map(tag => tag.toLowerCase());
+    
+    switch (condition.toLowerCase()) {
+      case 'rain':
+      case 'drizzle':
+        return !tags.some(tag => ['white', 'light', 'delicate', 'suede'].includes(tag)) &&
+               tags.some(tag => ['waterproof', 'rain', 'dark', 'casual'].includes(tag));
+      case 'snow':
+        return tags.some(tag => ['winter', 'warm', 'coat', 'boots', 'cozy'].includes(tag));
+      case 'clear':
+      case 'sun':
+        return tags.some(tag => ['summer', 'light', 'bright', 'sundress', 'shorts'].includes(tag));
+      default:
+        return true;
+    }
+  });
+  
+  return weatherAppropriate.length > 0 ? [...weatherAppropriate] : [...outfits];
+};
+
+export const getByTemperatureRange = async (temperature) => {
+  await delay(200);
+  
+  const tempAppropriate = outfits.filter(outfit => {
+    const tags = (outfit.tags || []).map(tag => tag.toLowerCase());
+    
+    if (temperature < 5) {
+      // Very cold - need heavy winter items
+      return tags.some(tag => ['winter', 'coat', 'heavy', 'warm', 'wool', 'fur'].includes(tag));
+    } else if (temperature < 15) {
+      // Cold - need layers or warm items
+      return tags.some(tag => ['fall', 'autumn', 'jacket', 'sweater', 'layered', 'warm'].includes(tag)) ||
+             !tags.some(tag => ['summer', 'tank', 'shorts', 'beach'].includes(tag));
+    } else if (temperature < 25) {
+      // Mild - versatile clothing
+      return !tags.some(tag => ['heavy', 'winter', 'coat', 'very-warm'].includes(tag)) &&
+             !tags.some(tag => ['very-light', 'beach', 'bikini'].includes(tag));
+    } else {
+      // Hot - need light, breathable clothing
+      return tags.some(tag => ['summer', 'light', 'tank', 'shorts', 'sundress', 'breathable'].includes(tag)) ||
+             !tags.some(tag => ['winter', 'heavy', 'coat', 'sweater', 'warm'].includes(tag));
+    }
+  });
+  
+  return tempAppropriate.length > 0 ? [...tempAppropriate] : [...outfits];
 };

@@ -15,12 +15,68 @@ const OOTDGenerator = ({ onViewCloset }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [shuffling, setShuffling] = useState(false);
+  const [weather, setWeather] = useState(null);
+  const [weatherLoading, setWeatherLoading] = useState(true);
+  const [locationError, setLocationError] = useState(false);
+
+const loadWeather = async () => {
+    try {
+      setWeatherLoading(true);
+      setLocationError(false);
+      
+      const position = await new Promise((resolve, reject) => {
+        navigator.geolocation.getCurrentPosition(resolve, reject, {
+          timeout: 10000,
+          enableHighAccuracy: true
+        });
+      });
+
+      const { latitude, longitude } = position.coords;
+      const response = await fetch(
+        `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&appid=${import.meta.env.VITE_WEATHER_API_KEY}&units=metric`
+      );
+      
+      if (!response.ok) throw new Error('Weather API failed');
+      
+      const weatherData = await response.json();
+      setWeather({
+        temperature: Math.round(weatherData.main.temp),
+        condition: weatherData.weather[0].main.toLowerCase(),
+        description: weatherData.weather[0].description,
+        location: weatherData.name,
+        humidity: weatherData.main.humidity,
+        feelsLike: Math.round(weatherData.main.feels_like)
+      });
+    } catch (err) {
+      console.error('Weather fetch failed:', err);
+      setLocationError(true);
+      setWeather(null);
+    } finally {
+      setWeatherLoading(false);
+    }
+  };
 
   const loadOutfits = async () => {
     try {
       setError("");
       setLoading(true);
-      const data = await outfitService.getAll();
+      let data;
+      
+      if (weather && !locationError) {
+        // Try to get weather-appropriate outfits first
+        try {
+          data = await outfitService.getByTemperatureRange(weather.temperature);
+          if (data.length === 0) {
+            data = await outfitService.getByWeatherCondition(weather.condition);
+          }
+        } catch (weatherErr) {
+          console.log('Weather-based filtering failed, using all outfits');
+          data = await outfitService.getAll();
+        }
+      } else {
+        data = await outfitService.getAll();
+      }
+      
       setOutfits(data);
       if (data.length > 0) {
         setCurrentOutfit(getRandomOutfit(data));
@@ -33,17 +89,83 @@ const OOTDGenerator = ({ onViewCloset }) => {
   };
 
   useEffect(() => {
-    loadOutfits();
+    loadWeather();
   }, []);
 
-  const getRandomOutfit = (outfitList = outfits) => {
+  useEffect(() => {
+    if (!weatherLoading) {
+      loadOutfits();
+    }
+  }, [weather, weatherLoading]);
+
+const getRandomOutfit = (outfitList = outfits) => {
     if (outfitList.length === 0) return null;
-    const randomIndex = Math.floor(Math.random() * outfitList.length);
-    return outfitList[randomIndex];
+    let availableOutfits = outfitList;
+    
+    // If we have weather data, prefer weather-appropriate outfits
+    if (weather && !locationError) {
+      const weatherAppropriate = outfitList.filter(outfit => 
+        isWeatherAppropriate(outfit, weather)
+      );
+      if (weatherAppropriate.length > 0) {
+        availableOutfits = weatherAppropriate;
+      }
+    }
+    
+    const randomIndex = Math.floor(Math.random() * availableOutfits.length);
+    return availableOutfits[randomIndex];
   };
 
-  const generateCommentary = (outfit) => {
+  const isWeatherAppropriate = (outfit, weatherData) => {
+    const temp = weatherData.temperature;
+    const condition = weatherData.condition;
+    
+    // Temperature-based filtering
+    const tags = (outfit.tags || []).map(tag => tag.toLowerCase());
+    
+    if (temp < 10) {
+      return tags.some(tag => ['winter', 'coat', 'warm', 'cozy', 'sweater'].includes(tag));
+    } else if (temp < 20) {
+      return tags.some(tag => ['fall', 'autumn', 'layered', 'jacket', 'casual'].includes(tag)) ||
+             !tags.some(tag => ['summer', 'beach', 'tank', 'shorts'].includes(tag));
+    } else if (temp > 25) {
+      return tags.some(tag => ['summer', 'light', 'beach', 'tank', 'shorts', 'sundress'].includes(tag)) ||
+             !tags.some(tag => ['winter', 'coat', 'heavy', 'sweater'].includes(tag));
+    }
+    
+    // Weather condition filtering
+    if (['rain', 'drizzle'].includes(condition)) {
+      return !tags.some(tag => ['white', 'light', 'delicate'].includes(tag));
+    }
+    
+    return true;
+  };
+
+const generateCommentary = (outfit) => {
     if (!outfit) return "Loading your fabulous look! ✨";
+
+    const weatherCommentaries = weather && !locationError ? {
+      hot: [
+        `Perfect for this ${weather.temperature}°C weather! Stay cool and chic! ☀️`,
+        `Weather-approved gorgeousness for ${weather.temperature}°C! 🌡️✨`,
+        `Hot weather, hotter look! Perfect for today's ${weather.temperature}°C! 🔥`
+      ],
+      mild: [
+        `Ideal for today's lovely ${weather.temperature}°C weather! 🌤️`,
+        `Weather gods are smiling - perfect outfit for ${weather.temperature}°C! ✨`,
+        `Comfort meets style in this ${weather.temperature}°C weather! 💕`
+      ],
+      cold: [
+        `Cozy chic for this chilly ${weather.temperature}°C day! ❄️✨`,
+        `Bundled up and beautiful for ${weather.temperature}°C! 🧥💖`,
+        `Cold weather fashion icon vibes at ${weather.temperature}°C! 🌨️`
+      ],
+      rainy: [
+        `Rain-ready and runway-ready! Perfect for today's weather! ☔✨`,
+        `Drizzle-proof diva energy! You'll slay through any storm! 🌧️💪`,
+        `Weather might be gloomy, but your style is sunshine! 🌈`
+      ]
+    } : {};
 
     const commentaries = {
       "coquette": [
@@ -85,6 +207,26 @@ const OOTDGenerator = ({ onViewCloset }) => {
       ]
     };
 
+    // Prioritize weather-based commentary if available
+    if (weather && !locationError) {
+      const temp = weather.temperature;
+      const condition = weather.condition;
+      
+      if (['rain', 'drizzle'].includes(condition) && weatherCommentaries.rainy) {
+        const randomIndex = Math.floor(Math.random() * weatherCommentaries.rainy.length);
+        return weatherCommentaries.rainy[randomIndex];
+      } else if (temp > 25 && weatherCommentaries.hot) {
+        const randomIndex = Math.floor(Math.random() * weatherCommentaries.hot.length);
+        return weatherCommentaries.hot[randomIndex];
+      } else if (temp < 10 && weatherCommentaries.cold) {
+        const randomIndex = Math.floor(Math.random() * weatherCommentaries.cold.length);
+        return weatherCommentaries.cold[randomIndex];
+      } else if (weatherCommentaries.mild) {
+        const randomIndex = Math.floor(Math.random() * weatherCommentaries.mild.length);
+        return weatherCommentaries.mild[randomIndex];
+      }
+    }
+
     // Try to match outfit tags with commentary themes
     let matchedCommentary = commentaries.default;
     
@@ -102,7 +244,7 @@ const OOTDGenerator = ({ onViewCloset }) => {
     return matchedCommentary[randomIndex];
   };
 
-  const handleShuffle = () => {
+const handleShuffle = () => {
     if (outfits.length === 0) return;
     
     setShuffling(true);
@@ -113,6 +255,20 @@ const OOTDGenerator = ({ onViewCloset }) => {
       setCurrentOutfit(newOutfit);
       setShuffling(false);
     }, 500);
+  };
+
+  const getWeatherIcon = (condition) => {
+    const iconMap = {
+      clear: "Sun",
+      clouds: "Cloud",
+      rain: "CloudRain",
+      drizzle: "CloudDrizzle",
+      thunderstorm: "Zap",
+      snow: "Snowflake",
+      mist: "CloudFog",
+      fog: "CloudFog"
+    };
+    return iconMap[condition] || "Sun";
   };
 
   if (loading) return <Loading />;
@@ -130,16 +286,50 @@ const OOTDGenerator = ({ onViewCloset }) => {
     );
   }
 
-  return (
+return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="text-center space-y-2">
-        <h2 className="text-3xl font-display text-gray-800">
-          Today's Look ✨
-        </h2>
-        <p className="text-gray-600">
-          Your personal style oracle has spoken!
-        </p>
+      {/* Header with Weather Widget */}
+      <div className="text-center space-y-4">
+        <div className="space-y-2">
+          <h2 className="text-3xl font-display text-gray-800">
+            Today's Look ✨
+          </h2>
+          <p className="text-gray-600">
+            {weather && !locationError 
+              ? "Weather-smart style suggestions just for you!" 
+              : "Your personal style oracle has spoken!"
+            }
+          </p>
+        </div>
+
+        {/* Weather Widget */}
+        {!weatherLoading && (
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="inline-flex items-center gap-3 bg-gradient-to-r from-primary/10 to-accent/10 rounded-full px-4 py-2 backdrop-blur-sm border border-primary/20"
+          >
+            {weather && !locationError ? (
+              <>
+                <ApperIcon 
+                  name={getWeatherIcon(weather.condition)} 
+                  size={20} 
+                  className="text-primary" 
+                />
+                <div className="text-sm font-medium text-gray-700">
+                  {weather.temperature}°C • {weather.description} • {weather.location}
+                </div>
+              </>
+            ) : (
+              <>
+                <ApperIcon name="MapPin" size={20} className="text-gray-400" />
+                <div className="text-sm text-gray-500">
+                  Weather unavailable • Classic suggestions ready!
+                </div>
+              </>
+            )}
+          </motion.div>
+        )}
       </div>
 
       {/* Main OOTD Card */}

@@ -1,61 +1,110 @@
-import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import Button from "@/components/atoms/Button";
+import React, { useEffect, useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
+import ApperIcon from "@/components/ApperIcon";
+import Empty from "@/components/ui/Empty";
+import Error from "@/components/ui/Error";
+import Loading from "@/components/ui/Loading";
+import Closet from "@/components/pages/Closet";
 import Card from "@/components/atoms/Card";
 import Badge from "@/components/atoms/Badge";
-import ApperIcon from "@/components/ApperIcon";
-import Loading from "@/components/ui/Loading";
-import Error from "@/components/ui/Error";
-import Empty from "@/components/ui/Empty";
+import Button from "@/components/atoms/Button";
 import * as outfitService from "@/services/api/outfitService";
+import { getAll } from "@/services/api/moodboardService";
 
 const OOTDGenerator = ({ onViewCloset }) => {
   const [outfits, setOutfits] = useState([]);
   const [currentOutfit, setCurrentOutfit] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [shuffling, setShuffling] = useState(false);
   const [weather, setWeather] = useState(null);
   const [weatherLoading, setWeatherLoading] = useState(true);
-  const [locationError, setLocationError] = useState(false);
+  const [locationError, setLocationError] = useState(null);
+  const [shuffling, setShuffling] = useState(false);
 
-const loadWeather = async () => {
+  // Load weather data with comprehensive error handling
+  const loadWeather = async () => {
     try {
       setWeatherLoading(true);
-      setLocationError(false);
-      
+      setLocationError(null);
+// Get user's location with timeout and detailed error handling
       const position = await new Promise((resolve, reject) => {
-        navigator.geolocation.getCurrentPosition(resolve, reject, {
-          timeout: 10000,
-          enableHighAccuracy: true
-        });
+        const timeoutId = setTimeout(() => {
+          reject(new Error('TIMEOUT'));
+        }, 10000); // 10 second timeout
+
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            clearTimeout(timeoutId);
+            resolve(position);
+          },
+          (error) => {
+            clearTimeout(timeoutId);
+            reject(error);
+          },
+          {
+            enableHighAccuracy: true,
+            timeout: 8000,
+            maximumAge: 300000 // 5 minutes
+          }
+        );
       });
 
       const { latitude, longitude } = position.coords;
+      
+      // Mock weather API call (replace with actual API)
       const response = await fetch(
-        `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&appid=${import.meta.env.VITE_WEATHER_API_KEY}&units=metric`
+        `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&appid=demo&units=metric`
       );
       
-      if (!response.ok) throw new Error('Weather API failed');
+      if (!response.ok) {
+        throw new Error('Weather API request failed');
+      }
       
       const weatherData = await response.json();
+      
       setWeather({
-        temperature: Math.round(weatherData.main.temp),
-        condition: weatherData.weather[0].main.toLowerCase(),
-        description: weatherData.weather[0].description,
-        location: weatherData.name,
-        humidity: weatherData.main.humidity,
-        feelsLike: Math.round(weatherData.main.feels_like)
+        temp: Math.round(weatherData.main?.temp || 20),
+        condition: weatherData.weather?.[0]?.main?.toLowerCase() || 'clear',
+        location: weatherData.name || 'Unknown'
       });
     } catch (err) {
       console.error('Weather fetch failed:', err);
-      setLocationError(true);
-      setWeather(null);
+      
+      // Handle specific geolocation errors
+      let errorMessage = 'Unable to get weather information';
+      
+      if (err.code) {
+        switch (err.code) {
+          case err.PERMISSION_DENIED:
+            errorMessage = 'Location access denied. Please enable location services to get weather-appropriate outfit suggestions.';
+            break;
+          case err.POSITION_UNAVAILABLE:
+            errorMessage = 'Location information is unavailable. Using default weather for outfit suggestions.';
+            break;
+          case err.TIMEOUT:
+            errorMessage = 'Location request timed out. Using default weather for outfit suggestions.';
+            break;
+          default:
+            errorMessage = 'Location services error. Using default weather for outfit suggestions.';
+        }
+      } else if (err.message === 'TIMEOUT') {
+        errorMessage = 'Location request timed out. Using default weather for outfit suggestions.';
+      } else if (err.message?.includes('Weather API')) {
+        errorMessage = 'Weather service unavailable. Using default conditions for outfit suggestions.';
+      }
+      
+      setLocationError(errorMessage);
+      
+      // Set fallback weather data
+      setWeather({
+        temp: 22,
+        condition: 'clear',
+        location: 'Default Location'
+});
     } finally {
       setWeatherLoading(false);
     }
   };
-
   const loadOutfits = async () => {
     try {
       setError("");
@@ -63,9 +112,9 @@ const loadWeather = async () => {
       let data;
       
       if (weather && !locationError) {
-        // Try to get weather-appropriate outfits first
+// Try to get weather-appropriate outfits first
         try {
-          data = await outfitService.getByTemperatureRange(weather.temperature);
+          data = await outfitService.getByTemperatureRange(weather.temp);
           if (data.length === 0) {
             data = await outfitService.getByWeatherCondition(weather.condition);
           }
@@ -115,9 +164,8 @@ const getRandomOutfit = (outfitList = outfits) => {
     const randomIndex = Math.floor(Math.random() * availableOutfits.length);
     return availableOutfits[randomIndex];
   };
-
-  const isWeatherAppropriate = (outfit, weatherData) => {
-    const temp = weatherData.temperature;
+const isWeatherAppropriate = (outfit, weatherData) => {
+    const temp = weatherData.temp;
     const condition = weatherData.condition;
     
     // Temperature-based filtering
@@ -143,22 +191,22 @@ const getRandomOutfit = (outfitList = outfits) => {
 
 const generateCommentary = (outfit) => {
     if (!outfit) return "Loading your fabulous look! ✨";
-
-    const weatherCommentaries = weather && !locationError ? {
+const weatherCommentaries = weather && !locationError ? {
       hot: [
-        `Perfect for this ${weather.temperature}°C weather! Stay cool and chic! ☀️`,
-        `Weather-approved gorgeousness for ${weather.temperature}°C! 🌡️✨`,
-        `Hot weather, hotter look! Perfect for today's ${weather.temperature}°C! 🔥`
+        `Perfect for this ${weather.temp}°C weather! Stay cool and chic! ☀️`,
+        `Weather-approved gorgeousness for ${weather.temp}°C! 🌡️✨`,
+        `Hot weather, hotter look! Perfect for today's ${weather.temp}°C! 🔥`
       ],
       mild: [
-        `Ideal for today's lovely ${weather.temperature}°C weather! 🌤️`,
-        `Weather gods are smiling - perfect outfit for ${weather.temperature}°C! ✨`,
-        `Comfort meets style in this ${weather.temperature}°C weather! 💕`
+        `Ideal for today's lovely ${weather.temp}°C weather! 🌤️`,
+`Ideal for today's lovely ${weather.temp}°C weather! 🌤️`,
+        `Weather gods are smiling - perfect outfit for ${weather.temp}°C! ✨`,
+        `Comfort meets style in this ${weather.temp}°C weather! 💕`
       ],
       cold: [
-        `Cozy chic for this chilly ${weather.temperature}°C day! ❄️✨`,
-        `Bundled up and beautiful for ${weather.temperature}°C! 🧥💖`,
-        `Cold weather fashion icon vibes at ${weather.temperature}°C! 🌨️`
+        `Cozy chic for this chilly ${weather.temp}°C day! ❄️✨`,
+        `Bundled up and beautiful for ${weather.temp}°C! 🧥💖`,
+        `Cold weather fashion icon vibes at ${weather.temp}°C! 🌨️`
       ],
       rainy: [
         `Rain-ready and runway-ready! Perfect for today's weather! ☔✨`,
@@ -207,11 +255,10 @@ const generateCommentary = (outfit) => {
       ]
     };
 
-    // Prioritize weather-based commentary if available
+// Prioritize weather-based commentary if available
     if (weather && !locationError) {
-      const temp = weather.temperature;
+      const temp = weather.temp;
       const condition = weather.condition;
-      
       if (['rain', 'drizzle'].includes(condition) && weatherCommentaries.rainy) {
         const randomIndex = Math.floor(Math.random() * weatherCommentaries.rainy.length);
         return weatherCommentaries.rainy[randomIndex];
@@ -301,45 +348,70 @@ return (
             }
           </p>
         </div>
-
-        {/* Weather Widget */}
-        {!weatherLoading && (
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="inline-flex items-center gap-3 bg-gradient-to-r from-primary/10 to-accent/10 rounded-full px-4 py-2 backdrop-blur-sm border border-primary/20"
-          >
-            {weather && !locationError ? (
-              <>
-                <ApperIcon 
-                  name={getWeatherIcon(weather.condition)} 
-                  size={20} 
-                  className="text-primary" 
-                />
-                <div className="text-sm font-medium text-gray-700">
-                  {weather.temperature}°C • {weather.description} • {weather.location}
+{/* Weather Widget */}
+        {weather && (
+          <Card className="bg-gradient-to-br from-blue-50 to-indigo-100 p-6 mb-6">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-4">
+                <div className="bg-white/80 p-3 rounded-full">
+                  <ApperIcon 
+                    name={getWeatherIcon(weather?.condition || 'clear')} 
+                    className="w-8 h-8 text-blue-600" 
+                  />
                 </div>
-              </>
-            ) : (
-              <>
-                <ApperIcon name="MapPin" size={20} className="text-gray-400" />
-                <div className="text-sm text-gray-500">
-                  Weather unavailable • Classic suggestions ready!
+                <div>
+                  <p className="text-2xl font-bold text-blue-900">
+                    {weather?.temp || '22'}°C
+                  </p>
+                  <p className="text-blue-600 capitalize">
+                    {weather?.condition || 'clear'}
+                  </p>
                 </div>
-              </>
+              </div>
+              <div className="text-right">
+                <p className="text-sm text-blue-600">📍 Location</p>
+                <p className="font-medium text-blue-900">
+                  {weather?.location || 'Default Location'}
+                </p>
+              </div>
+            </div>
+            {locationError && (
+              <div className="mt-4 p-3 bg-orange-50 border border-orange-200 rounded-lg">
+                <div className="flex items-start space-x-2">
+                  <ApperIcon name="AlertCircle" className="w-5 h-5 text-orange-600 mt-0.5 flex-shrink-0" />
+                  <div>
+                    <p className="text-sm font-medium text-orange-800">Weather Notice</p>
+                    <p className="text-sm text-orange-700 mt-1">{locationError}</p>
+                  </div>
+                </div>
+              </div>
             )}
-          </motion.div>
+          </Card>
+        )}
+
+        {locationError && !weather && (
+          <Card className="bg-red-50 border-red-200 p-4 mb-6">
+            <div className="flex items-center space-x-3">
+              <ApperIcon name="AlertTriangle" className="w-5 h-5 text-red-600" />
+              <div>
+                <p className="font-medium text-red-800">Weather Unavailable</p>
+                <p className="text-sm text-red-600">
+                  {locationError}
+                </p>
+              </div>
+            </div>
+          </Card>
         )}
       </div>
 
-      {/* Main OOTD Card */}
+      {/* Outfit Display */}
       <AnimatePresence mode="wait">
         <motion.div
-          key={currentOutfit?.Id || "loading"}
-          initial={{ opacity: 0, scale: 0.9, rotateY: 90 }}
-          animate={{ opacity: 1, scale: 1, rotateY: 0 }}
-          exit={{ opacity: 0, scale: 0.9, rotateY: -90 }}
-          transition={{ duration: 0.5 }}
+          key={currentOutfit?.id}
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 0, scale: 0.9 }}
+          transition={{ duration: 0.3 }}
         >
           <Card className="overflow-hidden bg-gradient-to-br from-surface to-white relative">
             {shuffling && (

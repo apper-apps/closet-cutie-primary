@@ -67,9 +67,15 @@ const OOTDGenerator = ({ onViewCloset }) => {
         condition: weatherData.weather?.[0]?.main?.toLowerCase() || 'clear',
         location: weatherData.name || 'Unknown'
       });
-    } catch (err) {
-console.error('Weather fetch failed:', err);
-      
+} catch (err) {
+      // Enhanced error logging with proper serialization
+      console.error('Weather fetch failed:', {
+        error: err,
+        message: err?.message || 'Unknown error',
+        code: err?.code || 'N/A',
+        type: err?.constructor?.name || typeof err,
+        stack: err?.stack || 'No stack trace available'
+      });
       // Handle specific geolocation errors with proper error extraction
       let errorMessage = 'Unable to get weather information';
       

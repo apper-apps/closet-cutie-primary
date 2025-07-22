@@ -75,8 +75,68 @@
     "category": "Bottom",
     "tags": ["denim", "casual", "comfortable", "everyday"],
     "notes": "My go-to comfort jeans for lazy Sunday vibes 👖",
-    "dateAdded": "2023-12-28T13:15:00.000Z",
+"dateAdded": "2023-12-28T13:15:00.000Z",
     "rating": 3,
     "wornDates": ["2023-12-28T13:15:00.000Z", "2024-01-05T16:45:00.000Z"]
+  },
+  {
+    "Id": 9,
+    "imageUrl": "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=400&h=600&fit=crop&crop=center",
+    "category": "Full Outfit",
+    "tags": ["k-pop", "korean street", "colorful", "trendy", "youth"],
+    "notes": "Channeling my inner K-pop idol! This look is so fun and vibrant 🎤✨",
+    "dateAdded": "2024-01-20T15:30:00.000Z",
+    "rating": 5,
+    "wornDates": ["2024-01-20T15:30:00.000Z"]
+  },
+  {
+    "Id": 10,
+    "imageUrl": "https://images.unsplash.com/photo-1583743814966-8936f37f82e4?w=400&h=600&fit=crop&crop=center",
+    "category": "Top",
+    "tags": ["minimalist korean", "clean", "sophisticated", "neutral"],
+    "notes": "Korean minimalism at its finest - simple yet so chic 🤍",
+    "dateAdded": "2024-01-22T11:45:00.000Z",
+    "rating": 4,
+    "wornDates": ["2024-01-22T11:45:00.000Z"]
+  },
+  {
+    "Id": 11,
+    "imageUrl": "https://images.unsplash.com/photo-1469334031218-e382a71b716b?w=400&h=600&fit=crop&crop=center",
+    "category": "Dress",
+    "tags": ["hanbok inspired", "traditional", "modern", "elegant", "korean culture"],
+    "notes": "Modern hanbok vibes! Honoring tradition with a contemporary twist 🌸",
+    "dateAdded": "2024-01-25T14:20:00.000Z",
+    "rating": 5,
+    "wornDates": ["2024-01-25T14:20:00.000Z"]
+  },
+  {
+    "Id": 12,
+    "imageUrl": "https://images.unsplash.com/photo-1487222477894-8943e31ef7b2?w=400&h=600&fit=crop&crop=center",
+    "category": "Full Outfit",
+    "tags": ["ulzzang", "korean fashion", "cute", "playful", "kawaii"],
+    "notes": "Ulzzang style makes me feel so cute and confident! 💕",
+    "dateAdded": "2024-01-28T16:10:00.000Z",
+    "rating": 4,
+    "wornDates": ["2024-01-28T16:10:00.000Z"]
+  },
+  {
+    "Id": 13,
+    "imageUrl": "https://images.unsplash.com/photo-1581044777550-4cfa60707c03?w=400&h=600&fit=crop&crop=center",
+    "category": "Bottom",
+    "tags": ["korean university", "casual", "student", "comfortable", "everyday"],
+    "notes": "Korean uni student vibes - comfy but still put-together 📚",
+    "dateAdded": "2024-01-30T13:30:00.000Z",
+    "rating": 3,
+    "wornDates": ["2024-01-30T13:30:00.000Z"]
+  },
+  {
+    "Id": 14,
+    "imageUrl": "https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?w=400&h=600&fit=crop&crop=center",
+    "category": "Full Outfit",
+    "tags": ["korean office", "professional", "polished", "work wear", "sophisticated"],
+    "notes": "Korean office fashion is so polished and refined! Ready to conquer the workday 💼",
+    "dateAdded": "2024-02-02T09:00:00.000Z",
+    "rating": 4,
+    "wornDates": ["2024-02-02T09:00:00.000Z"]
   }
 ]

@@ -68,29 +68,34 @@ const OOTDGenerator = ({ onViewCloset }) => {
         location: weatherData.name || 'Unknown'
       });
     } catch (err) {
-      console.error('Weather fetch failed:', err);
+console.error('Weather fetch failed:', err);
       
-      // Handle specific geolocation errors
+      // Handle specific geolocation errors with proper error extraction
       let errorMessage = 'Unable to get weather information';
       
-      if (err.code) {
+      // Check if it's a GeolocationPositionError
+      if (err && typeof err === 'object' && err.code !== undefined) {
+        // Handle GeolocationPositionError with specific codes
         switch (err.code) {
-          case err.PERMISSION_DENIED:
+          case 1: // PERMISSION_DENIED
             errorMessage = 'Location access denied. Please enable location services to get weather-appropriate outfit suggestions.';
             break;
-          case err.POSITION_UNAVAILABLE:
+          case 2: // POSITION_UNAVAILABLE
             errorMessage = 'Location information is unavailable. Using default weather for outfit suggestions.';
             break;
-          case err.TIMEOUT:
+          case 3: // TIMEOUT
             errorMessage = 'Location request timed out. Using default weather for outfit suggestions.';
             break;
           default:
             errorMessage = 'Location services error. Using default weather for outfit suggestions.';
         }
-      } else if (err.message === 'TIMEOUT') {
+      } else if (err?.message === 'TIMEOUT') {
         errorMessage = 'Location request timed out. Using default weather for outfit suggestions.';
-      } else if (err.message?.includes('Weather API')) {
+      } else if (err?.message?.includes('Weather API')) {
         errorMessage = 'Weather service unavailable. Using default conditions for outfit suggestions.';
+      } else if (err?.message) {
+        // Use the actual error message if available
+        errorMessage = `Weather service error: ${err.message}. Using default conditions for outfit suggestions.`;
       }
       
       setLocationError(errorMessage);
@@ -100,7 +105,7 @@ const OOTDGenerator = ({ onViewCloset }) => {
         temp: 22,
         condition: 'clear',
         location: 'Default Location'
-});
+      });
     } finally {
       setWeatherLoading(false);
     }

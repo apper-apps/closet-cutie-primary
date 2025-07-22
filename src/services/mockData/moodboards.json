@@ -1,0 +1,146 @@
+[
+  {
+    "Id": 1,
+    "name": "Dream Paris Fits 🇫🇷",
+    "items": [
+      {
+        "id": 1001,
+        "type": "outfit",
+        "outfitId": 1,
+        "x": 50,
+        "y": 80,
+        "width": 120,
+        "height": 120,
+        "imageUrl": "https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?w=400&h=600&fit=crop&crop=center"
+      },
+      {
+        "id": 1002,
+        "type": "outfit",
+        "outfitId": 3,
+        "x": 200,
+        "y": 120,
+        "width": 100,
+        "height": 100,
+        "imageUrl": "https://images.unsplash.com/photo-1469334031218-e382a71b716b?w=400&h=600&fit=crop&crop=center"
+      }
+    ],
+    "decorations": [
+      {
+        "id": 2001,
+        "type": "decoration",
+        "decorationType": "heart",
+        "x": 180,
+        "y": 60,
+        "rotation": 15
+      },
+      {
+        "id": 2002,
+        "type": "decoration",
+        "decorationType": "sparkle",
+        "x": 320,
+        "y": 180,
+        "rotation": -20
+      },
+      {
+        "id": 2003,
+        "type": "decoration",
+        "decorationType": "flower",
+        "x": 100,
+        "y": 220,
+        "rotation": 45
+      }
+    ],
+    "createdAt": "2024-01-20T10:00:00.000Z",
+    "lastModified": "2024-01-20T15:30:00.000Z"
+  },
+  {
+    "Id": 2,
+    "name": "Coquette Princess Core 🎀",
+    "items": [
+      {
+        "id": 1003,
+        "type": "outfit",
+        "outfitId": 1,
+        "x": 80,
+        "y": 100,
+        "width": 140,
+        "height": 140,
+        "imageUrl": "https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?w=400&h=600&fit=crop&crop=center"
+      }
+    ],
+    "decorations": [
+      {
+        "id": 2004,
+        "type": "decoration",
+        "decorationType": "bow",
+        "x": 50,
+        "y": 50,
+        "rotation": 0
+      },
+      {
+        "id": 2005,
+        "type": "decoration",
+        "decorationType": "heart",
+        "x": 250,
+        "y": 80,
+        "rotation": 25
+      },
+      {
+        "id": 2006,
+        "type": "decoration",
+        "decorationType": "sparkle",
+        "x": 120,
+        "y": 260,
+        "rotation": -10
+      }
+    ],
+    "createdAt": "2024-01-18T14:20:00.000Z",
+    "lastModified": "2024-01-19T09:45:00.000Z"
+  },
+  {
+    "Id": 3,
+    "name": "Y2K Baddie Vibes ✨",
+    "items": [
+      {
+        "id": 1004,
+        "type": "outfit",
+        "outfitId": 2,
+        "x": 70,
+        "y": 90,
+        "width": 110,
+        "height": 110,
+        "imageUrl": "https://images.unsplash.com/photo-1551698618-1dfe5d97d256?w=400&h=600&fit=crop&crop=center"
+      },
+      {
+        "id": 1005,
+        "type": "outfit",
+        "outfitId": 6,
+        "x": 220,
+        "y": 140,
+        "width": 80,
+        "height": 80,
+        "imageUrl": "https://images.unsplash.com/photo-1487222477894-8943e31ef7b2?w=400&h=600&fit=crop&crop=center"
+      }
+    ],
+    "decorations": [
+      {
+        "id": 2007,
+        "type": "decoration",
+        "decorationType": "star",
+        "x": 190,
+        "y": 70,
+        "rotation": 30
+      },
+      {
+        "id": 2008,
+        "type": "decoration",
+        "decorationType": "sparkle",
+        "x": 320,
+        "y": 200,
+        "rotation": -15
+      }
+    ],
+    "createdAt": "2024-01-16T16:10:00.000Z",
+    "lastModified": "2024-01-17T11:20:00.000Z"
+  }
+]

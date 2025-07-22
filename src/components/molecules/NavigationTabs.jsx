@@ -25,11 +25,17 @@ const NavigationTabs = () => {
       label: "Moodboards",
       emoji: "🎨"
     },
-    { 
+{ 
       path: "/lookbook", 
       icon: "BookOpen", 
       label: "Lookbook",
       emoji: "📖"
+    },
+    { 
+      path: "/calendar", 
+      icon: "CalendarDays", 
+      label: "Calendar",
+      emoji: "📅"
     }
   ];
 

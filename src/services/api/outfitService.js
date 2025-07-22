@@ -55,7 +55,79 @@ export const deleteOutfit = async (id) => {
   if (index === -1) {
     throw new Error("Outfit not found");
   }
+outfits.splice(index, 1);
+  return true;
+};
+
+// Calendar/Planning specific operations
+export const getPlanningData = async () => {
+  await delay(300);
+  // Get all outfits with their planned dates
+  return outfits.map(outfit => ({
+    ...outfit,
+    plannedDates: outfit.plannedDates || []
+  }));
+};
+
+export const createPlanning = async (planningData) => {
+  await delay(300);
   
-  outfits.splice(index, 1);
+  const { outfitId, date, eventTitle, reminder } = planningData;
+  const outfitIndex = outfits.findIndex(o => o.Id === outfitId);
+  
+  if (outfitIndex === -1) {
+    throw new Error("Outfit not found");
+  }
+  
+  const plannedDates = outfits[outfitIndex].plannedDates || [];
+  const newPlanning = {
+    Id: Math.max(...plannedDates.map(p => p.Id || 0), 0) + 1,
+    date,
+    eventTitle: eventTitle || "",
+    reminder: reminder || false,
+    createdAt: new Date().toISOString()
+  };
+  
+  outfits[outfitIndex].plannedDates = [...plannedDates, newPlanning];
+  return { ...newPlanning };
+};
+
+export const updatePlanning = async (outfitId, planningId, updatedData) => {
+  await delay(300);
+  
+  const outfitIndex = outfits.findIndex(o => o.Id === outfitId);
+  if (outfitIndex === -1) {
+    throw new Error("Outfit not found");
+  }
+  
+  const plannedDates = outfits[outfitIndex].plannedDates || [];
+  const planningIndex = plannedDates.findIndex(p => p.Id === planningId);
+  
+  if (planningIndex === -1) {
+    throw new Error("Planning not found");
+  }
+  
+  const updatedPlanning = { ...plannedDates[planningIndex], ...updatedData };
+  outfits[outfitIndex].plannedDates[planningIndex] = updatedPlanning;
+  
+  return { ...updatedPlanning };
+};
+
+export const deletePlanning = async (outfitId, planningId) => {
+  await delay(250);
+  
+  const outfitIndex = outfits.findIndex(o => o.Id === outfitId);
+  if (outfitIndex === -1) {
+    throw new Error("Outfit not found");
+  }
+  
+  const plannedDates = outfits[outfitIndex].plannedDates || [];
+  const planningIndex = plannedDates.findIndex(p => p.Id === planningId);
+  
+  if (planningIndex === -1) {
+    throw new Error("Planning not found");
+  }
+  
+  outfits[outfitIndex].plannedDates.splice(planningIndex, 1);
   return true;
 };

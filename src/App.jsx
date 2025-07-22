@@ -8,6 +8,7 @@ import Closet from "@/components/pages/Closet";
 import Moodboards from "@/components/pages/Moodboards";
 import MoodboardEditor from "@/components/pages/MoodboardEditor";
 import Lookbook from "@/components/pages/Lookbook";
+import Calendar from "@/components/pages/Calendar";
 
 // Components
 import NavigationTabs from "@/components/molecules/NavigationTabs";
@@ -20,9 +21,10 @@ function App() {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/closet" element={<Closet />} />
-            <Route path="/moodboards" element={<Moodboards />} />
+<Route path="/moodboards" element={<Moodboards />} />
             <Route path="/moodboard/:id" element={<MoodboardEditor />} />
             <Route path="/lookbook" element={<Lookbook />} />
+            <Route path="/calendar" element={<Calendar />} />
           </Routes>
         </AnimatePresence>
 

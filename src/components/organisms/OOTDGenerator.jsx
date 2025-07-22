@@ -68,16 +68,31 @@ const OOTDGenerator = ({ onViewCloset }) => {
         location: weatherData.name || 'Unknown'
       });
 } catch (err) {
-      // Enhanced error logging with proper error object handling
-      console.error('Weather fetch failed:', {
+      // Serialize error object properly for logging
+      const serializedError = {
         message: err?.message || 'Unknown error',
         code: err?.code || 'N/A',
         type: err?.constructor?.name || typeof err,
         stack: err?.stack || 'No stack trace available'
-      });
+      };
+      
+      console.error('Weather fetch failed:', serializedError);
+      
+      // Extract error message safely - ensure it's always a string
+      const getErrorMessage = (error) => {
+        if (!error) return 'Unknown error occurred';
+        if (typeof error === 'string') return error;
+        if (error.message && typeof error.message === 'string') return error.message;
+        if (error.toString && typeof error.toString === 'function') {
+          const stringified = error.toString();
+          return stringified !== '[object Object]' ? stringified : 'Error object without message';
+        }
+        return 'Unknown error type';
+      };
       
       // Handle specific geolocation errors with proper error extraction
       let errorMessage = 'Unable to get weather information';
+      
       // Check if it's a GeolocationPositionError
       if (err && typeof err === 'object' && err.code !== undefined) {
         // Handle GeolocationPositionError with specific codes
@@ -94,16 +109,18 @@ const OOTDGenerator = ({ onViewCloset }) => {
           default:
             errorMessage = 'Location services error. Using default weather for outfit suggestions.';
         }
-      } else if (err?.message === 'TIMEOUT') {
+      } else if (getErrorMessage(err) === 'TIMEOUT') {
         errorMessage = 'Location request timed out. Using default weather for outfit suggestions.';
-      } else if (err?.message?.includes('Weather API')) {
+      } else if (getErrorMessage(err).includes('Weather API')) {
         errorMessage = 'Weather service unavailable. Using default conditions for outfit suggestions.';
-      } else if (err?.message) {
-        // Use the actual error message if available
-        errorMessage = `Weather service error: ${err.message}. Using default conditions for outfit suggestions.`;
+      } else {
+        // Use the safely extracted error message
+        const safeMessage = getErrorMessage(err);
+        errorMessage = `Weather service error: ${safeMessage}. Using default conditions for outfit suggestions.`;
       }
       
-      setLocationError(errorMessage);
+      // Ensure errorMessage is always a string before setting state
+      setLocationError(typeof errorMessage === 'string' ? errorMessage : 'Weather service temporarily unavailable');
       
       // Set fallback weather data
       setWeather({

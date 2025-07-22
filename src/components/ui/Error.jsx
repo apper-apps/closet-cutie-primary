@@ -2,31 +2,56 @@ import { motion } from "framer-motion";
 import React from "react";
 import ApperIcon from "@/components/ApperIcon";
 
-export default function Error({ message, onRetry, className = '' }) {
-  // Ensure message is always a string and handle edge cases
-  const errorMessage = typeof message === 'string' 
-    ? message 
-    : message?.message || message?.toString?.() || 'An unexpected error occurred';
-
-  return (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.9 }}
-      animate={{ opacity: 1, scale: 1 }}
-      className={`glass-card rounded-2xl p-8 text-center max-w-md mx-auto ${className}`}
-    >
-      <div className="mb-6">
+function Error({ error, onRetry, type = 'general' }) {
+  // Enhanced error message extraction with proper serialization
+  const getErrorMessage = (err) => {
+    if (!err) return 'Something went wrong';
+    
+    // If it's already a string, use it
+    if (typeof err === 'string') return err;
+    
+    // Try to extract message property
+    if (err.message && typeof err.message === 'string') return err.message;
+    
+    // Try to extract error description
+    if (err.description && typeof err.description === 'string') return err.description;
+    
+    // Try toString method, but avoid [object Object]
+    if (err.toString && typeof err.toString === 'function') {
+      const stringified = err.toString();
+      if (stringified !== '[object Object]') return stringified;
+    }
+    
+    // Try to extract any meaningful error info
+    if (err.code) return `Error code: ${err.code}`;
+    if (err.status) return `Error status: ${err.status}`;
+    if (err.statusText) return `Error: ${err.statusText}`;
+    
+    // Last resort - generic message
+    return 'An unexpected error occurred';
+  };
+  
+  const errorMessage = getErrorMessage(error);
+  
+return (
+    <div className="flex flex-col items-center justify-center p-8 text-center">
+      <motion.div
+        initial={{ scale: 0.8, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        className="mb-4"
+      >
         <ApperIcon 
           name="AlertTriangle" 
-          size={48} 
-          className="text-error mx-auto mb-4" 
+          className="w-16 h-16 text-error mx-auto mb-4" 
         />
-        <h3 className="text-lg font-semibold text-gray-800 mb-2">
-          Oops! Something went wrong
-        </h3>
-        <p className="text-gray-600 text-sm leading-relaxed">
-          {errorMessage}
-        </p>
-</div>
+      </motion.div>
+      
+      <h3 className="text-lg font-semibold text-gray-800 mb-2">
+        Oops! Something went wrong
+      </h3>
+      <p className="text-gray-600 text-sm leading-relaxed">
+        {errorMessage}
+      </p>
       
       {onRetry && (
         <motion.button

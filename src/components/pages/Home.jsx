@@ -1,16 +1,27 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import OOTDGenerator from "@/components/organisms/OOTDGenerator";
 import StylePersonaQuiz from "@/components/molecules/StylePersonaQuiz";
 import Button from "@/components/atoms/Button";
 
-const Home = () => {
+const Home = ({ showQuizDirectly = false }) => {
   const navigate = useNavigate();
-  const [showQuiz, setShowQuiz] = useState(false);
+  const [showQuiz, setShowQuiz] = useState(showQuizDirectly);
+
+  useEffect(() => {
+    setShowQuiz(showQuizDirectly);
+  }, [showQuizDirectly]);
 
   const handleViewCloset = () => {
     navigate("/closet");
+  };
+
+  const handleCloseQuiz = () => {
+    setShowQuiz(false);
+    if (showQuizDirectly) {
+      navigate("/");
+    }
   };
 
   return (
@@ -123,9 +134,9 @@ const Home = () => {
 </motion.div>
       </div>
 
-      <StylePersonaQuiz 
+<StylePersonaQuiz 
         isOpen={showQuiz} 
-        onClose={() => setShowQuiz(false)} 
+        onClose={handleCloseQuiz} 
       />
     </motion.div>
   );

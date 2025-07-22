@@ -6,12 +6,18 @@ const NavigationTabs = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const tabs = [
+const tabs = [
     { 
       path: "/closet", 
       icon: "Shirt", 
       label: "Closet",
       emoji: "👗"
+    },
+    { 
+      path: "/quiz", 
+      icon: "Brain", 
+      label: "Quiz",
+      emoji: "🧠"
     },
     { 
       path: "/", 
@@ -25,7 +31,7 @@ const NavigationTabs = () => {
       label: "Moodboards",
       emoji: "🎨"
     },
-{ 
+    { 
       path: "/lookbook", 
       icon: "BookOpen", 
       label: "Lookbook",
